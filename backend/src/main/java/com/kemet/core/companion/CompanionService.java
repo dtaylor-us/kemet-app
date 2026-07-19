@@ -49,6 +49,8 @@ public class CompanionService {
 
     private static final String OPENAI_API_URL = "https://api.openai.com/v1/chat/completions";
     private static final long OPENAI_RETRY_BASE_BACKOFF_MILLIS = 500L;
+    private static final long OPENAI_MAX_BACKOFF_MILLIS = 8_000L;
+    private static final int OPENAI_MAX_BACKOFF_SHIFT = 20;
 
     private final ChatMessageRepository chatMessageRepository;
     private final PracticeStateRepository practiceStateRepository;
@@ -175,6 +177,7 @@ public class CompanionService {
                 .POST(HttpRequest.BodyPublishers.ofString(body.toString(), StandardCharsets.UTF_8))
                 .build();
         int totalAttempts = Math.max(1, maxAttempts);
+        IOException lastFailure = null;
         for (int attempt = 1; attempt <= totalAttempts; attempt++) {
             HttpResponse<String> response;
             try {
@@ -186,7 +189,8 @@ public class CompanionService {
                     sleepBeforeRetry(attempt);
                     continue;
                 }
-                throw ex;
+                lastFailure = ex;
+                break;
             }
 
             if (response.statusCode() == 200) {
@@ -201,9 +205,13 @@ public class CompanionService {
                 continue;
             }
 
-            throw new IOException("OpenAI API returned " + response.statusCode() + ": " + response.body());
+            lastFailure = new IOException("OpenAI API returned " + response.statusCode() + ": " + response.body());
+            break;
         }
 
+        if (lastFailure != null) {
+            throw lastFailure;
+        }
         throw new IOException("OpenAI API request failed after " + totalAttempts + " attempts");
     }
 
@@ -212,7 +220,8 @@ public class CompanionService {
     }
 
     private void sleepBeforeRetry(int attempt) throws InterruptedException {
-        long backoffMillis = OPENAI_RETRY_BASE_BACKOFF_MILLIS * (1L << (attempt - 1));
+        long exponentialFactor = 1L << Math.min(attempt - 1, OPENAI_MAX_BACKOFF_SHIFT);
+        long backoffMillis = Math.min(OPENAI_MAX_BACKOFF_MILLIS, OPENAI_RETRY_BASE_BACKOFF_MILLIS * exponentialFactor);
         Thread.sleep(backoffMillis);
     }
 

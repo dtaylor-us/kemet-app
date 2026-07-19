@@ -1,0 +1,49 @@
+{
+  "expo": {
+    "name": "Kemet",
+    "slug": "kemet",
+    "scheme": "kemet",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "light",
+    "ios": {
+      "bundleIdentifier": "com.kemet.mobile",
+      "supportsTablet": true
+    },
+    "android": {
+      "package": "com.kemet.mobile",
+      "adaptiveIcon": {
+        "backgroundColor": "#E6F4FE",
+        "foregroundImage": "./assets/android-icon-foreground.png",
+        "backgroundImage": "./assets/android-icon-background.png",
+        "monochromeImage": "./assets/android-icon-monochrome.png"
+      },
+      "predictiveBackGestureEnabled": false
+    },
+    "web": {
+      "favicon": "./assets/favicon.png"
+    },
+    "plugins": [
+      [
+        "react-native-auth0",
+        {
+          "domain": "kemet-app.us.auth0.com",
+          "customScheme": "kemet"
+        }
+      ],
+      [
+        "expo-local-authentication",
+        {
+          "faceIDPermission": "Allow Kemet to use Face ID to unlock your journal."
+        }
+      ],
+      [
+        "expo-secure-store",
+        {
+          "faceIDPermission": "Allow Kemet to use Face ID to protect your journal PIN."
+        }
+      ]
+    ]
+  }
+}

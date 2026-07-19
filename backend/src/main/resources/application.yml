@@ -1,0 +1,42 @@
+spring:
+  application:
+    name: core-service
+
+  datasource:
+    url: ${POSTGRES_URL:jdbc:postgresql://localhost:${DB_HOST_PORT:55432}/kemet}
+    username: kemet
+    password: ${DB_PASSWORD:kemet_local_dev}
+
+  jpa:
+    hibernate:
+      ddl-auto: update   # fine for a local prototype; switch to Flyway/Liquibase before this is anything but that
+    show-sql: false
+    properties:
+      hibernate:
+        format_sql: true
+
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: ${AUTH0_ISSUER_URI:}
+
+server:
+  port: ${SERVER_PORT:8090}
+
+app:
+  auth0:
+    audience: ${AUTH0_AUDIENCE:}
+  openai:
+    api-key: ${OPENAI_API_KEY:}
+    # CONFIRM THIS before running: OpenAI's model names change frequently and I
+    # couldn't verify the current exact ID from this sandbox. Check
+    # https://platform.openai.com/docs/models and pick their current cheapest
+    # general-purpose model (as of this scaffold, that tier was called "nano" —
+    # e.g. something like gpt-5-nano or whatever its current dated/versioned name is).
+    model: gpt-5-mini
+    max-completion-tokens: 1024
+    system-prompt-path: classpath:prompts/companion-system-prompt.md
+  seed:
+    practice-framework-path: classpath:seed/practice-framework.json
+    faculties-pattern: classpath:seed/faculties/*.json

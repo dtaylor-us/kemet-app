@@ -1,0 +1,63 @@
+{
+  "_provenance": {
+    "sourceDocument": "PRINT Maat 11 Laws Course Workbook V2.pdf",
+    "note": "Shared across all 11 faculties (pp. 9-19, 42-48) — the breathing technique, environment protocols, and 4-step meditation script are one universal method applied with a different faculty/affirmation each cycle, not faculty-specific content. Kept separate from the per-faculty files so that content isn't duplicated 11 times at the source-authoring level; SeedDataLoader merges this into each faculty at seed time."
+  },
+  "breathingTechnique": {
+    "summary": "Slow the breathing rate from the customary 15-18 breaths per minute to about 7 breaths per minute (roughly 4 seconds in, 4 seconds out).",
+    "inbreath": "Gently push out the lower abdomen during the inbreath, and at the end apply a gentle tension in the outstretched abdomen.",
+    "outbreath": "The tension is gently maintained throughout the out-breath, in which the lower abdomen is pulled back in.",
+    "principle": "Lower abdominal tension stimulates the vagus nerve, energizing the waking center of the brain and the will. Mental wandering during meditation comes from diminished wakefulness caused by the lowered breathing rate; pressure on the vagus nerve counteracts this."
+  },
+  "environmentProtocols": [
+    "Meditate in a clean, uncluttered area.",
+    "The room should be free of odors such as food or cleaning materials. Lightly scent the room with incense of Olibanum (Frankincense) or Sweet Basil.",
+    "Set up a small table displaying elements associated with the objectives of the meditation (peace, love, serenity, your success goals) — things that must be in your line of sight.",
+    "Sit in a chair that gives proper support to your back, kept upright yet relaxed. Never slump, never sit in a tense manner."
+  ],
+  "expectedSensations": "Deepening calm and relaxation, effortless or day-dreamy thought flow, a feeling of detachment, and/or bodily sensations of warmth, coolness, tingling, light electrical sensations, or the body feeling very heavy, very light, or drifting — these are normal. Pain or congestion may indicate posture/breathing issues; if persistent, may indicate blockages addressed through yoga, pranayama, Qi Gong, acupuncture/acupressure, or massage therapy.",
+  "scriptSteps": [
+    {
+      "step": 1,
+      "name": "Trigger scenario",
+      "instruction": "Recall or visualize concretely a scenario that habitually triggers a negative response in you (do not include the negative response itself in the script — only the trigger)."
+    },
+    {
+      "step": 2,
+      "name": "Affirm the law",
+      "instruction": "Affirm the law that governs the spiritual faculty of the situation, replacing the negative internal chatter that feeds the incorrect response."
+    },
+    {
+      "step": 3,
+      "name": "Visualize living the law",
+      "instruction": "Visualize yourself smiling or laughing in the situation, joyfully continuing to engage rather than reacting negatively. Outward or inward smiling/laughter is described as releasing endorphins and mood-enhancing neurochemicals that counter stress."
+    },
+    {
+      "step": 4,
+      "name": "Visualize the blessing and give thanks",
+      "instruction": "Visualize yourself enjoying the successful realization of a worldly goal (relationship harmony, wealth, health) as an effect of living the law. Conclude by acknowledging to God any failures to live the law that day, pledging to do better, and giving thanks."
+    }
+  ],
+  "durationGuidance": "Perform for 21 consecutive days for the behavioral change to take full effect, followed by a nightly accounting/recommitment step. 20-30 minutes per session; ideally done as the last thing before bed. The workbook's overall program is 1-2 faculties per month (21 days of meditation + 7 days of review), completing a first pass through all 11 faculties in six to twelve months.",
+  "journalPromptsTemplate": [
+    "What negative emotional response (anger, worry, fear, grief, sadness) came up for you today, and what specifically triggered it?",
+    "Rank today's trigger by frequency and seriousness to your wellbeing compared to other recurring triggers.",
+    "Describe, in vivid detail, the trigger scenario you want to use in tomorrow's meditation script.",
+    "Which {{FACULTY}} affirmation did you use today, and did it come to mind automatically in the moment of challenge, or only afterward?",
+    "Where did you fall short of responding with peace today? Acknowledge it, and note your recommitment for tomorrow."
+  ],
+  "suggestedDailyActionsTemplate": [
+    "Complete one 20-30 minute {{FACULTY}} meditation session using the breathing technique and the 4-step script.",
+    "Select or compose one {{FACULTY}} affirmation to carry with you through the day.",
+    "Log today's practice in the tracker (trigger, affirmation used, visualization, outcome).",
+    "If you missed the full meditation, repeat the script several times before moving into your day rather than skipping it entirely."
+  ],
+  "dailyTrackerFields": [
+    "day_number",
+    "trigger_scenario",
+    "affirmation_used",
+    "visualization_notes",
+    "blessing_and_praise_notes",
+    "completed_boolean"
+  ]
+}

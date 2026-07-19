@@ -1,0 +1,21 @@
+{
+  "id": "maat",
+  "displayName": "Maat",
+  "role": "Bringing order, love, and the foundation of divinity to life",
+  "practiceOrder": 5,
+  "treePosition": "As presented in the workbook, following Tehuti — see Sekher's provenance note on how this ordering was inferred.",
+  "teachingNotes": [
+    "Bringing Order to our Lives resulting in Health, Wealth and Success.",
+    "Awakening the power of Selfless Love that brings the greatest Blessings to life.",
+    "Laying the unshakable foundation of Divinity and most important relationship in Life — your relationship with God."
+  ],
+  "hekau": [
+    {"id": "maat-1", "text": "I am a divine spiritual being endowed with the ability to bring harmony to my life, my family, my community and the world."},
+    {"id": "maat-2", "text": "Wealth, not attained divinely, does not enrichen the soul."},
+    {"id": "maat-3", "text": "Peace and love are the paths to health, wealth, and success."},
+    {"id": "maat-4", "text": "Thank you, God for making me in your image, and likeness. Peaceful by nature, with no need for deeds of closure, as suffering can never touch me."},
+    {"id": "maat-5", "text": "My peace in the face of the wrongdoer is the image of God."},
+    {"id": "maat-6", "text": "Thank you God for the opportunity to learn that you need me as I need you. I delay not the work to become your living temple on earth."},
+    {"id": "maat-7", "text": "Why should I not bless strangers and transgressors? Have I not received unasked-for blessings? Did I earn all of the good things that came my way? God has given to me through others and asked for nothing in return. I give thanks for God's love for me by showering others with my love."}
+  ]
+}

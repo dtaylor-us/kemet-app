@@ -1,0 +1,27 @@
+version: "3.9"
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: kemet-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: kemet
+      POSTGRES_USER: kemet
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-kemet_local_dev}
+    ports:
+      - "${DB_HOST_PORT:-55432}:5432"
+    volumes:
+      - kemet_pg_data:/var/lib/postgresql/data
+
+  # Not on the critical path for the AI-companion prototype slice (single test user,
+  # nothing worth caching yet). Uncomment when you actually add a caching need.
+  # redis:
+  #   image: redis:7-alpine
+  #   container_name: kemet-redis
+  #   restart: unless-stopped
+  #   ports:
+  #     - "6379:6379"
+
+volumes:
+  kemet_pg_data:

@@ -30,4 +30,8 @@ public class UserService {
                     return appUserRepository.save(created);
                 });
     }
+
+    public AppUser save(AppUser user) {
+        return appUserRepository.save(user);
+    }
 }

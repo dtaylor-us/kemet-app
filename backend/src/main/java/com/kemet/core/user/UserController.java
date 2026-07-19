@@ -1,7 +1,6 @@
 package com.kemet.core.user;
 
 import com.kemet.core.domain.AppUser;
-import com.kemet.core.repository.AppUserRepository;
 import com.kemet.core.repository.FacultyContentRepository;
 import com.kemet.core.user.dto.SetActiveFacultyRequest;
 import com.kemet.core.user.dto.UserProfile;
@@ -17,13 +16,10 @@ import org.springframework.web.server.ResponseStatusException;
 public class UserController {
 
     private final UserService userService;
-    private final AppUserRepository appUserRepository;
     private final FacultyContentRepository facultyContentRepository;
 
-    public UserController(UserService userService, AppUserRepository appUserRepository,
-                           FacultyContentRepository facultyContentRepository) {
+    public UserController(UserService userService, FacultyContentRepository facultyContentRepository) {
         this.userService = userService;
-        this.appUserRepository = appUserRepository;
         this.facultyContentRepository = facultyContentRepository;
     }
 
@@ -43,7 +39,7 @@ public class UserController {
         }
 
         user.setActiveFacultyId(request.facultyId());
-        appUserRepository.save(user);
+        userService.save(user);
         return new UserProfile(user.getId(), user.getDisplayName(), user.getActiveFacultyId());
     }
 }

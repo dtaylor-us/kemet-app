@@ -1,7 +1,6 @@
 package com.kemet.core.user;
 
 import com.kemet.core.domain.AppUser;
-import com.kemet.core.repository.AppUserRepository;
 import com.kemet.core.repository.FacultyContentRepository;
 import com.kemet.core.user.dto.SetActiveFacultyRequest;
 import org.junit.jupiter.api.BeforeEach;
@@ -15,9 +14,8 @@ import static org.mockito.Mockito.*;
 
 class UserControllerTest {
     private final UserService userService = mock(UserService.class);
-    private final AppUserRepository users = mock(AppUserRepository.class);
     private final FacultyContentRepository faculties = mock(FacultyContentRepository.class);
-    private final UserController controller = new UserController(userService, users, faculties);
+    private final UserController controller = new UserController(userService, faculties);
     private final AppUser user = new AppUser();
 
     @BeforeEach
@@ -40,7 +38,7 @@ class UserControllerTest {
         var profile = controller.setActiveFaculty(UserServiceTest.jwt("sub", "Amina"),
                 new SetActiveFacultyRequest("maat"));
         assertThat(profile.activeFacultyId()).isEqualTo("maat");
-        verify(users).save(user);
+        verify(userService).save(user);
     }
 
     @Test
@@ -50,6 +48,6 @@ class UserControllerTest {
                 new SetActiveFacultyRequest("unknown")))
                 .isInstanceOf(ResponseStatusException.class)
                 .hasMessageContaining("400 BAD_REQUEST");
-        verify(users, never()).save(any());
+        verify(userService, never()).save(any());
     }
 }

@@ -32,7 +32,8 @@ class ApiExceptionHandlerTest {
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.BAD_GATEWAY);
         assertThat(response.getBody()).containsEntry("error", "companion_unavailable");
         assertThat(Thread.currentThread().isInterrupted()).isTrue();
-        Thread.interrupted(); // clear the flag after asserting
+        boolean wasInterrupted = Thread.interrupted(); // clear the flag; return value confirms it was set
+        assertThat(wasInterrupted).isTrue();
     }
 
     @Test

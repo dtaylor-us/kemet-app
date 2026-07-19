@@ -54,7 +54,7 @@ class PracticeControllerTest {
         PracticeState state = new PracticeState();
         state.setCompletedDays(5);
         // lastPracticedAt is today (UTC)
-        state.setLastPracticedAt(LocalDate.now(ZoneOffset.UTC).atStartOfDay().toInstant(ZoneOffset.UTC).plusSeconds(3600));
+        state.setLastPracticedAt(LocalDate.now(ZoneOffset.UTC).atStartOfDay().toInstant(ZoneOffset.UTC).plus(java.time.Duration.ofHours(1)));
         when(users.getOrCreate(any())).thenReturn(user);
         when(states.findByUserIdAndFacultyId(user.getId(), "maat")).thenReturn(Optional.of(state));
 

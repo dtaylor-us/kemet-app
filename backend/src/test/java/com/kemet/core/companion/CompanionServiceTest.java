@@ -14,9 +14,12 @@ import org.springframework.core.io.ByteArrayResource;
 import org.springframework.test.util.ReflectionTestUtils;
 
 import java.io.IOException;
+import java.net.http.HttpRequest;
 import java.net.http.HttpClient;
 import java.net.http.HttpResponse;
+import java.net.http.HttpTimeoutException;
 import java.time.Instant;
+import java.time.Duration;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -41,6 +44,8 @@ class CompanionServiceTest {
         ReflectionTestUtils.setField(service, "openaiApiKey", "test-key");
         ReflectionTestUtils.setField(service, "model", "gpt-test");
         ReflectionTestUtils.setField(service, "maxCompletionTokens", 100);
+        ReflectionTestUtils.setField(service, "requestTimeoutSeconds", 30);
+        ReflectionTestUtils.setField(service, "maxAttempts", 3);
         ReflectionTestUtils.setField(service, "systemPromptResource",
                 new ByteArrayResource("Faculty={{APPROVED_FACULTY_CONTENT_JSON}} State={{USER_STATE_JSON}}".getBytes()));
     }
@@ -111,6 +116,90 @@ class CompanionServiceTest {
         assertThatThrownBy(() -> service.reply(user, "Hello"))
                 .isInstanceOf(IOException.class).hasMessageContaining("429: rate limited");
         verify(messages, never()).save(any());
+    }
+
+    @Test
+    void appliesConfiguredRequestTimeoutToOpenAiHttpRequest() throws Exception {
+        ReflectionTestUtils.setField(service, "requestTimeoutSeconds", 7);
+        stubHappyPathData();
+        HttpResponse<String> response = mock(HttpResponse.class);
+        when(response.statusCode()).thenReturn(200);
+        when(response.body()).thenReturn("{\"choices\":[{\"message\":{\"content\":\"Timed.\"}}]}");
+        when(client.send(any(), any(HttpResponse.BodyHandler.class))).thenAnswer(invocation -> {
+            HttpRequest request = invocation.getArgument(0);
+            assertThat(request.timeout()).hasValue(Duration.ofSeconds(7));
+            return response;
+        });
+
+        assertThat(service.reply(user, "Hello")).isEqualTo("Timed.");
+    }
+
+    @Test
+    void retriesOnceOnRateLimitThenSucceeds() throws Exception {
+        stubHappyPathData();
+        HttpResponse<String> first = mock(HttpResponse.class);
+        HttpResponse<String> second = mock(HttpResponse.class);
+        when(first.statusCode()).thenReturn(429);
+        when(first.body()).thenReturn("rate limited");
+        when(second.statusCode()).thenReturn(200);
+        when(second.body()).thenReturn("{\"choices\":[{\"message\":{\"content\":\"Recovered.\"}}]}");
+        when(client.send(any(), any(HttpResponse.BodyHandler.class))).thenReturn(first, second);
+
+        assertThat(service.reply(user, "Hello")).isEqualTo("Recovered.");
+        verify(client, times(2)).send(any(), any(HttpResponse.BodyHandler.class));
+    }
+
+    @Test
+    void doesNotRetryOnNonRetryable400Response() throws Exception {
+        stubHappyPathData();
+        mockResponse(400, "bad request");
+
+        assertThatThrownBy(() -> service.reply(user, "Hello"))
+                .isInstanceOf(IOException.class)
+                .hasMessageContaining("400: bad request");
+        verify(client, times(1)).send(any(), any(HttpResponse.BodyHandler.class));
+    }
+
+    @Test
+    void surfacesIoExceptionAfterExhaustingRetriesOnRepeatedServerErrors() throws Exception {
+        stubHappyPathData();
+        HttpResponse<String> first = mock(HttpResponse.class);
+        HttpResponse<String> second = mock(HttpResponse.class);
+        HttpResponse<String> third = mock(HttpResponse.class);
+        when(first.statusCode()).thenReturn(500);
+        when(first.body()).thenReturn("upstream error");
+        when(second.statusCode()).thenReturn(500);
+        when(second.body()).thenReturn("upstream error");
+        when(third.statusCode()).thenReturn(500);
+        when(third.body()).thenReturn("upstream error");
+        when(client.send(any(), any(HttpResponse.BodyHandler.class))).thenReturn(first, second, third);
+
+        assertThatThrownBy(() -> service.reply(user, "Hello"))
+                .isInstanceOf(IOException.class)
+                .hasMessageContaining("500: upstream error");
+        verify(client, times(3)).send(any(), any(HttpResponse.BodyHandler.class));
+    }
+
+    @Test
+    void doesNotRetryWhenRequestTimesOut() throws Exception {
+        stubHappyPathData();
+        when(client.send(any(), any(HttpResponse.BodyHandler.class)))
+                .thenThrow(new HttpTimeoutException("request timed out"));
+
+        assertThatThrownBy(() -> service.reply(user, "Hello"))
+                .isInstanceOf(HttpTimeoutException.class)
+                .hasMessageContaining("request timed out");
+        verify(client, times(1)).send(any(), any(HttpResponse.BodyHandler.class));
+    }
+
+    private void stubHappyPathData() {
+        FacultyContent faculty = new FacultyContent();
+        faculty.setContentJson("{}");
+        PracticeState state = new PracticeState();
+        state.setFacultyId("amen");
+        when(faculties.findById("amen")).thenReturn(Optional.of(faculty));
+        when(states.findByUserIdAndFacultyId(user.getId(), "amen")).thenReturn(Optional.of(state));
+        when(messages.findTop20ByUserIdOrderByCreatedAtDesc(user.getId())).thenReturn(List.of());
     }
 
     @SuppressWarnings("unchecked")

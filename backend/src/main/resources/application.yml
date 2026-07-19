@@ -36,6 +36,8 @@ app:
     # e.g. something like gpt-5-nano or whatever its current dated/versioned name is).
     model: gpt-5-mini
     max-completion-tokens: 1024
+    request-timeout-seconds: 30
+    max-attempts: 3
     system-prompt-path: classpath:prompts/companion-system-prompt.md
   seed:
     practice-framework-path: classpath:seed/practice-framework.json

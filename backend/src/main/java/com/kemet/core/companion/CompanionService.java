@@ -20,6 +20,7 @@ import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
+import java.net.http.HttpTimeoutException;
 import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.time.Instant;
@@ -47,6 +48,7 @@ import java.util.List;
 public class CompanionService {
 
     private static final String OPENAI_API_URL = "https://api.openai.com/v1/chat/completions";
+    private static final long OPENAI_RETRY_BASE_BACKOFF_MILLIS = 500L;
 
     private final ChatMessageRepository chatMessageRepository;
     private final PracticeStateRepository practiceStateRepository;
@@ -62,6 +64,12 @@ public class CompanionService {
 
     @Value("${app.openai.max-completion-tokens}")
     private int maxCompletionTokens;
+
+    @Value("${app.openai.request-timeout-seconds:30}")
+    private int requestTimeoutSeconds;
+
+    @Value("${app.openai.max-attempts:3}")
+    private int maxAttempts;
 
     @Value("${app.openai.system-prompt-path}")
     private Resource systemPromptResource;
@@ -163,19 +171,49 @@ public class CompanionService {
                 .uri(URI.create(OPENAI_API_URL))
                 .header("Authorization", "Bearer " + openaiApiKey)
                 .header("content-type", "application/json")
+                .timeout(Duration.ofSeconds(requestTimeoutSeconds))
                 .POST(HttpRequest.BodyPublishers.ofString(body.toString(), StandardCharsets.UTF_8))
                 .build();
+        int totalAttempts = Math.max(1, maxAttempts);
+        for (int attempt = 1; attempt <= totalAttempts; attempt++) {
+            HttpResponse<String> response;
+            try {
+                response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
+            } catch (HttpTimeoutException ex) {
+                throw ex; // timeout is already bounded by request timeout and should not be retried
+            } catch (IOException ex) {
+                if (attempt < totalAttempts) {
+                    sleepBeforeRetry(attempt);
+                    continue;
+                }
+                throw ex;
+            }
 
-        HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
+            if (response.statusCode() == 200) {
+                JsonNode root = objectMapper.readTree(response.body());
+                // Chat Completions response shape: choices[0].message.content is a plain
+                // string (unlike Anthropic's array-of-typed-blocks content field).
+                return root.path("choices").path(0).path("message").path("content").asText();
+            }
 
-        if (response.statusCode() != 200) {
+            if (isRetryableStatus(response.statusCode()) && attempt < totalAttempts) {
+                sleepBeforeRetry(attempt);
+                continue;
+            }
+
             throw new IOException("OpenAI API returned " + response.statusCode() + ": " + response.body());
         }
 
-        JsonNode root = objectMapper.readTree(response.body());
-        // Chat Completions response shape: choices[0].message.content is a plain
-        // string (unlike Anthropic's array-of-typed-blocks content field).
-        return root.path("choices").path(0).path("message").path("content").asText();
+        throw new IOException("OpenAI API request failed after " + totalAttempts + " attempts");
+    }
+
+    private boolean isRetryableStatus(int statusCode) {
+        return statusCode == 429 || statusCode >= 500;
+    }
+
+    private void sleepBeforeRetry(int attempt) throws InterruptedException {
+        long backoffMillis = OPENAI_RETRY_BASE_BACKOFF_MILLIS * (1L << (attempt - 1));
+        Thread.sleep(backoffMillis);
     }
 
     private void persistTurn(java.util.UUID userId, String role, String content) {

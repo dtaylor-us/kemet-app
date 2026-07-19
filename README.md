@@ -68,7 +68,7 @@ See [RUNNING.md](RUNNING.md) for the full local configuration flow.
 
    - Set Auth0 values in `mobile/lib/authConfig.ts`.
    - Set the Auth0 plugin domain in `mobile/app.json`.
-   - Set `API_BASE_URL` in `mobile/lib/api.ts` to your Mac's LAN IP and backend port, for example `http://192.168.0.103:8090`.
+   - Copy `mobile/.env.example` to `mobile/.env` and set `EXPO_PUBLIC_API_BASE_URL` to your Mac's LAN IP and backend port (e.g. `http://192.168.1.x:8090`). Run `ipconfig getifaddr en0` to find the IP. Physical phones cannot reach `localhost`.
 
 6. Build and run the native mobile app:
 

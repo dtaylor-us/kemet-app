@@ -1,10 +1,15 @@
 import { getAccessToken } from './auth0Client';
 
-// Change this to your Mac's LAN IP (not "localhost") when testing on a physical phone —
-// the phone is a separate device on your Wi-Fi and can't resolve "localhost" as your Mac.
-// Find it with `ipconfig getifaddr en0` on your Mac. Keep the port matching
-// server.port in application.yml (8090 by default).
-export const API_BASE_URL = 'http://192.168.0.103:8090';
+const _apiBaseUrl = process.env.EXPO_PUBLIC_API_BASE_URL;
+if (!_apiBaseUrl) {
+  throw new Error(
+    'EXPO_PUBLIC_API_BASE_URL is not set. ' +
+    'Copy mobile/.env.example to mobile/.env and set EXPO_PUBLIC_API_BASE_URL ' +
+    "to your Mac's LAN IP and backend port (e.g. http://192.168.1.x:8090). " +
+    'Physical phones cannot reach "localhost" — they need the actual LAN IP.',
+  );
+}
+export const API_BASE_URL: string = _apiBaseUrl;
 
 async function authorizedFetch(path: string, options: RequestInit = {}): Promise<Response> {
   // getAccessToken() (see auth0Client.ts) transparently refreshes an expired token

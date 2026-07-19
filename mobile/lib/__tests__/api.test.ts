@@ -68,6 +68,24 @@ it('throws a diagnostic error for non-success responses', async () => {
   await expect(fetchFacultyList()).rejects.toThrow('/api/faculty -> 403: denied');
 });
 
+it('reads API_BASE_URL from EXPO_PUBLIC_API_BASE_URL', () => {
+  expect(API_BASE_URL).toBe('http://test-host:8090');
+});
+
+it('throws when EXPO_PUBLIC_API_BASE_URL is not set', () => {
+  const saved = process.env.EXPO_PUBLIC_API_BASE_URL;
+  try {
+    delete process.env.EXPO_PUBLIC_API_BASE_URL;
+    expect(() => {
+      jest.isolateModules(() => {
+        require('../api');
+      });
+    }).toThrow('EXPO_PUBLIC_API_BASE_URL is not set');
+  } finally {
+    process.env.EXPO_PUBLIC_API_BASE_URL = saved;
+  }
+});
+
 it('handles an unreadable error body', async () => {
   fetchMock.mockResolvedValue({ ok: false, status: 500, text: jest.fn().mockRejectedValue(new Error('broken')) });
   await expect(fetchUserProfile()).rejects.toThrow('/api/user/me -> 500: ');

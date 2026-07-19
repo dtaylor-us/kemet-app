@@ -6,6 +6,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.io.IOException;
+import java.net.http.HttpTimeoutException;
 import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -18,6 +19,16 @@ class ApiExceptionHandlerTest {
     void ioExceptionReturnsBadGatewayWithCompanionUnavailableError() throws Exception {
         ResponseEntity<Map<String, String>> response =
                 handler.handleCompanionUnavailable(new IOException("connection reset"));
+
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.BAD_GATEWAY);
+        assertThat(response.getBody()).containsEntry("error", "companion_unavailable");
+        assertThat(response.getBody()).containsKey("message");
+    }
+
+    @Test
+    void httpTimeoutExceptionReturnsBadGatewayWithCompanionUnavailableError() throws Exception {
+        ResponseEntity<Map<String, String>> response =
+                handler.handleCompanionUnavailable(new HttpTimeoutException("timed out"));
 
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.BAD_GATEWAY);
         assertThat(response.getBody()).containsEntry("error", "companion_unavailable");

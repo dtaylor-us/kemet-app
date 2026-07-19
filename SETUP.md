@@ -66,7 +66,7 @@ it cross-checks each package's version against your installed Expo SDK. They're 
 pinned in `package.json`, so this mostly confirms/aligns; skip it if plain `npm install`
 already resolved working versions.)
 
-Edit `lib/api.ts` and change `API_BASE_URL` from the placeholder IP to your actual Mac's
+Copy `mobile/.env.example` to `mobile/.env` and set `EXPO_PUBLIC_API_BASE_URL` to your actual Mac's
 LAN IP (`ipconfig getifaddr en0`, while backend and phone are on the same Wi-Fi) — your
 phone can't resolve `localhost` as meaning your laptop. Fill in `lib/authConfig.ts` per
 step 1.4 above.

@@ -159,13 +159,19 @@ Find your Mac's Wi-Fi IP address:
 ipconfig getifaddr en0
 ```
 
-Edit `mobile/lib/api.ts` so `API_BASE_URL` points at your Mac, for example:
+Copy `mobile/.env.example` to `mobile/.env` and set `EXPO_PUBLIC_API_BASE_URL`:
 
-```ts
-export const API_BASE_URL = 'http://192.168.0.103:8090';
+```sh
+cp .env.example .env
 ```
 
-Use the IP printed by `ipconfig`, not the example above. Your phone and Mac must be on
+Edit `mobile/.env`:
+
+```sh
+EXPO_PUBLIC_API_BASE_URL=http://YOUR_LAN_IP:8090
+```
+
+Replace `YOUR_LAN_IP` with the IP printed by `ipconfig`. Your phone and Mac must be on
 the same network, and macOS firewall settings must allow inbound connections to the
 backend.
 
@@ -209,7 +215,7 @@ permissions, run `npx expo prebuild --clean` again before rebuilding.
 ### Mobile App Cannot Reach The Backend
 
 - Confirm the backend is still running on port `8090`.
-- Confirm `mobile/lib/api.ts` uses your Mac's current LAN IP.
+- Confirm `EXPO_PUBLIC_API_BASE_URL` in `mobile/.env` uses your Mac's current LAN IP.
 - Re-run `ipconfig getifaddr en0` if you changed networks.
 - Make sure phone and Mac are on the same Wi-Fi.
 - Check that macOS firewall is not blocking Java.
@@ -266,5 +272,5 @@ cd mobile
 npx expo run:ios
 ```
 
-If your Mac's LAN IP changed, update `mobile/lib/api.ts` before launching the mobile
+If your Mac's LAN IP changed, update `EXPO_PUBLIC_API_BASE_URL` in `mobile/.env` before launching the mobile
 app.

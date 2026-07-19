@@ -1,3 +1,5 @@
+process.env.EXPO_PUBLIC_API_BASE_URL = 'http://test-host:8090';
+
 jest.mock('expo-status-bar', () => ({ StatusBar: () => null }));
 
 jest.mock('react-native-auth0', () => ({

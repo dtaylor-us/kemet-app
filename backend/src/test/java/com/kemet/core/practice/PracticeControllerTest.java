@@ -6,6 +6,9 @@ import com.kemet.core.repository.PracticeStateRepository;
 import com.kemet.core.user.UserService;
 import org.junit.jupiter.api.Test;
 
+import java.time.Instant;
+import java.time.LocalDate;
+import java.time.ZoneOffset;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -43,6 +46,38 @@ class PracticeControllerTest {
         assertThat(result.getUserId()).isEqualTo(user.getId());
         assertThat(result.getFacultyId()).isEqualTo("amen");
         assertThat(result.getCompletedDays()).isOne();
+    }
+
+    @Test
+    void secondCompletionOnSameDayDoesNotIncrement() {
+        AppUser user = user("maat");
+        PracticeState state = new PracticeState();
+        state.setCompletedDays(5);
+        // lastPracticedAt is today (UTC)
+        state.setLastPracticedAt(LocalDate.now(ZoneOffset.UTC).atStartOfDay().toInstant(ZoneOffset.UTC).plusSeconds(3600));
+        when(users.getOrCreate(any())).thenReturn(user);
+        when(states.findByUserIdAndFacultyId(user.getId(), "maat")).thenReturn(Optional.of(state));
+
+        PracticeState result = controller.complete(null);
+        assertThat(result.getCompletedDays()).isEqualTo(5);
+        verify(states, never()).save(any());
+    }
+
+    @Test
+    void completionOnNewDayAfterPriorDayIncrements() {
+        AppUser user = user("maat");
+        PracticeState state = new PracticeState();
+        state.setCompletedDays(3);
+        // lastPracticedAt is yesterday (UTC)
+        state.setLastPracticedAt(Instant.now().atZone(ZoneOffset.UTC).toLocalDate().minusDays(1)
+                .atStartOfDay().toInstant(ZoneOffset.UTC));
+        when(users.getOrCreate(any())).thenReturn(user);
+        when(states.findByUserIdAndFacultyId(user.getId(), "maat")).thenReturn(Optional.of(state));
+        when(states.save(state)).thenReturn(state);
+
+        PracticeState result = controller.complete(null);
+        assertThat(result.getCompletedDays()).isEqualTo(4);
+        assertThat(result.getLastPracticedAt()).isNotNull();
     }
 
     private AppUser user(String faculty) {

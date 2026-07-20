@@ -72,7 +72,7 @@ class CompanionIntegrationAdl029Adl030Test {
         assumeTrue(apiKey != null && !apiKey.isBlank(),
                 "ADL-029/ADL-030 setup: set OPENAI_API_KEY when running with -Dadl.integration=true");
 
-        String model = System.getProperty("app.openai.model", "gpt-5-mini");
+        String model = System.getProperty("app.openai.model", "gpt-5-nano");
 
         service = new CompanionService(messages, states, faculties, objectMapper,
                 HttpClient.newBuilder().connectTimeout(Duration.ofSeconds(10)).build());

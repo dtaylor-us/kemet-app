@@ -26,10 +26,10 @@ kemet/
 ## 1. Accounts (do these once, in any order)
 
 - **OpenAI API key** — platform.openai.com → API keys. Uses your existing API credit
-  balance. Pick the current cheapest general-purpose GPT-5-family model at
-  platform.openai.com/docs/models and set it in
-  `backend/src/main/resources/application.yml`'s `app.openai.model` — ships with a
-  placeholder (`gpt-5-mini`) that needs confirming against the live model list.
+  balance. `backend/src/main/resources/application.yml` is pinned to
+  `app.openai.model: gpt-5-nano`, confirmed on 2026-07-20 against OpenAI's official
+  API spec (`openai/openai-openapi`); if your account cannot access it, check
+  platform.openai.com/docs/models for the currently available equivalent.
 - **Auth0 tenant** — auth0.com, free tier. You'll create two things in the dashboard:
   1. An **API** (Applications → APIs → Create API) — this defines `AUTH0_AUDIENCE` for
      the backend. Note the Identifier you give it.
@@ -50,8 +50,8 @@ kemet/
 
 Follow `backend/BACKEND_SETUP.md` — generate the project shell at start.spring.io with
 the listed settings, drop these files on top, `docker compose up -d`, fill in `.env`,
-run it. `SeedDataLoader` inserts all 11 faculties on first boot (idempotent — safe to
-restart without duplicating rows).
+run it. On first boot, Flyway applies schema migrations, then `SeedDataLoader` inserts
+all 11 faculties (idempotent — safe to restart without duplicating rows).
 
 ## 3. Mobile app
 

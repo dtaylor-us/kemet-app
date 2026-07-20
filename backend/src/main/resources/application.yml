@@ -9,7 +9,7 @@ spring:
 
   jpa:
     hibernate:
-      ddl-auto: update   # fine for a local prototype; switch to Flyway/Liquibase before this is anything but that
+      ddl-auto: validate
     show-sql: false
     properties:
       hibernate:
@@ -29,12 +29,10 @@ app:
     audience: ${AUTH0_AUDIENCE:}
   openai:
     api-key: ${OPENAI_API_KEY:}
-    # CONFIRM THIS before running: OpenAI's model names change frequently and I
-    # couldn't verify the current exact ID from this sandbox. Check
-    # https://platform.openai.com/docs/models and pick their current cheapest
-    # general-purpose model (as of this scaffold, that tier was called "nano" —
-    # e.g. something like gpt-5-nano or whatever its current dated/versioned name is).
-    model: gpt-5-mini
+    # Confirmed 2026-07-20 from OpenAI's official API spec:
+    # https://raw.githubusercontent.com/openai/openai-openapi/master/openapi.yaml
+    # includes this exact GPT-5 nano model ID.
+    model: gpt-5-nano
     max-completion-tokens: 1024
     request-timeout-seconds: 30
     max-attempts: 3

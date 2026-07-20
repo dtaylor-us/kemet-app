@@ -79,8 +79,10 @@ Notes:
 - `SERVER_PORT` and `DB_HOST_PORT` are offset from common defaults so Kemet can run
   alongside other local apps that use ports `8080` and `5432`.
 
-Check `backend/src/main/resources/application.yml` before first boot and confirm
-`app.openai.model` is a currently available model in your OpenAI account.
+`backend/src/main/resources/application.yml` is pinned to
+`app.openai.model: gpt-5-nano` (confirmed 2026-07-20 from OpenAI's official API spec);
+if your OpenAI account cannot access it, check platform.openai.com/docs/models for the
+currently available equivalent.
 
 ## 3. Start PostgreSQL
 
@@ -113,8 +115,9 @@ From `backend/`:
 ./mvnw spring-boot:run
 ```
 
-Keep this terminal open. On first successful boot, the app seeds the 11 faculties into
-PostgreSQL. The seed loader is idempotent, so restarting should not duplicate rows.
+Keep this terminal open. On first successful boot, Flyway applies database migrations,
+then the app seeds the 11 faculties into PostgreSQL. The seed loader is idempotent, so
+restarting should not duplicate rows.
 
 A healthy backend should show Spring Boot listening on port `8090`. Authenticated API
 requests are required for the app endpoints, so a plain browser visit to most API paths
